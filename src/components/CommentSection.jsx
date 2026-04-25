@@ -1,96 +1,136 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import api from "../services/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../supabase-client";
 import { CommentItem } from "./CommentItem";
+
+const createComment = async (newComment, postId, userId, author) => {
+  if (!userId || !author) {
+    throw new Error("You must be logged in to comment.");
+  }
+
+  const { error } = await supabase.from("comments").insert({
+    post_id: postId,
+    content: newComment.content,
+    parent_comment_id: newComment.parent_comment_id || null,
+    user_id: userId,
+    author: author,
+  });
+
+  if (error) throw new Error(error.message);
+};
+
+const fetchComments = async (postId) => {
+  const { data, error } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("post_id", postId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return data;
+};
 
 export const CommentSection = ({ postId }) => {
   const [newCommentText, setNewCommentText] = useState("");
-  const [comments, setComments] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isPosting, setIsPosting] = useState(false);
-  const [error, setError] = useState(null);
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const fetchComments = async () => {
-    try {
-      setIsLoading(true);
-      const response = await api.get(`/posts/${postId}/comments`);
-      setComments(response.data);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to fetch comments", err);
-      setError("Failed to load comments.");
-    } finally {
-      setIsLoading(false);
-    }
+  const {
+    data: comments,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["comments", postId],
+    queryFn: () => fetchComments(postId),
+    refetchInterval: 5000,
+  });
+
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: (newComment) =>
+      createComment(
+        newComment,
+        postId,
+        user?.id,
+        user?.user_metadata?.user_name
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!newCommentText) return;
+    mutate({ content: newCommentText, parent_comment_id: null });
+    setNewCommentText("");
   };
 
-  useEffect(() => {
-    fetchComments();
-  }, [postId]);
+  const buildCommentTree = (flatComments) => {
+    const map = new Map();
+    const roots = [];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!newCommentText.trim() || !user) return;
-    
-    try {
-      setIsPosting(true);
-      const response = await api.post(`/posts/${postId}/comments`, {
-        comment: newCommentText
-      });
-      setComments([...comments, response.data]);
-      setNewCommentText("");
-    } catch (err) {
-      console.error("Failed to post comment", err);
-      setError("Error posting comment.");
-    } finally {
-      setIsPosting(false);
-    }
+    flatComments.forEach((comment) => {
+      map.set(comment.id, { ...comment, children: [] });
+    });
+
+    flatComments.forEach((comment) => {
+      if (comment.parent_comment_id) {
+        const parent = map.get(comment.parent_comment_id);
+        if (parent) {
+          parent.children.push(map.get(comment.id));
+        }
+      } else {
+        roots.push(map.get(comment.id));
+      }
+    });
+
+    return roots;
   };
 
   if (isLoading) {
-    return <div className="text-gray-400 p-2">Loading comments...</div>;
+    return <div>Loading comments...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500 p-2">{error}</div>;
+    return <div>Error: {error.message}</div>;
   }
 
+  const commentTree = comments ? buildCommentTree(comments) : [];
+
   return (
-    <div className="mt-4 border-t border-white/10 pt-4">
-      <h3 className="text-lg font-semibold mb-3">Comments</h3>
+    <div className="mt-6">
+      <h3 className="text-2xl font-semibold mb-4">Comments</h3>
 
       {user ? (
-        <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2">
+        <form onSubmit={handleSubmit} className="mb-4">
           <textarea
             value={newCommentText}
             onChange={(e) => setNewCommentText(e.target.value)}
-            className="w-full border border-white/20 bg-black/20 p-2 rounded text-sm text-white focus:outline-none focus:border-white/40"
+            className="w-full border border-white/10 bg-transparent p-2 rounded"
             placeholder="Write a comment..."
-            rows={2}
+            rows={3}
           />
           <button
             type="submit"
-            disabled={isPosting || !newCommentText.trim()}
-            className="self-end bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors cursor-pointer"
+            className="mt-2 bg-purple-500 text-white px-4 py-2 rounded cursor-pointer"
           >
-            {isPosting ? "Posting..." : "Post Comment"}
+            {isPending ? "Posting..." : "Post Comment"}
           </button>
+          {isError && (
+            <p className="text-red-500 mt-2">Error posting comment.</p>
+          )}
         </form>
       ) : (
-        <p className="mb-4 text-sm text-gray-400">
+        <p className="mb-4 text-gray-600">
           You must be logged in to post a comment.
         </p>
       )}
 
       <div className="space-y-4">
-        {comments.length === 0 ? (
-          <p className="text-sm text-gray-500 italic">No comments yet. Be the first to share your thoughts!</p>
-        ) : (
-          comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} />
-          ))
-        )}
+        {commentTree.map((comment, key) => (
+          <CommentItem key={key} comment={comment} postId={postId} />
+        ))}
       </div>
     </div>
   );

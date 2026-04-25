@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Bookmark, MoreVertical } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share, Bookmark, MoreVertical } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { CommentSection } from "./CommentSection";
 import "./PostItem.css";
 
-export const PostItem = ({ post, onLikeToggle, onSaveToggle }) => {
+export const PostItem = ({ post, onLikeToggle }) => {
   const [showComments, setShowComments] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   return (
     <div className="post-card">
@@ -60,10 +60,16 @@ export const PostItem = ({ post, onLikeToggle, onSaveToggle }) => {
           <MessageCircle size={22} />
           <span className="action-label">{post.comment_count}</span>
         </button>
+        <button className="post-action-btn" title="Repost">
+          <Repeat2 size={22} />
+        </button>
+        <button className="post-action-btn" title="Share">
+          <Share size={22} />
+        </button>
         <button 
-          onClick={onSaveToggle}
-          className={`post-action-btn save-btn ml-auto ${post.is_saved ? 'active' : ''}`}
-          title={post.is_saved ? 'Unsave' : 'Save'}
+          onClick={() => setIsSaved(!isSaved)}
+          className={`post-action-btn save-btn ml-auto ${isSaved ? 'active' : ''}`}
+          title={isSaved ? 'Unsave' : 'Save'}
         >
           <Bookmark size={22} />
         </button>
@@ -100,7 +106,9 @@ export const PostItem = ({ post, onLikeToggle, onSaveToggle }) => {
       {/* Comments Section Placeholder */}
       {showComments && (
         <div className="post-comments-section">
-          <CommentSection postId={post.id} />
+          <div className="comment-placeholder">
+            💬 Comments feature coming soon!
+          </div>
         </div>
       )}
     </div>
