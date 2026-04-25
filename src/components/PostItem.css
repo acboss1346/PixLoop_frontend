@@ -1,0 +1,304 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* POST CARD COMPONENT STYLES */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.post-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: all var(--transition-base);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.post-card:hover {
+  border-color: var(--border-light);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* POST HEADER */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.post-user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.post-avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  overflow: hidden;
+  border: 2px solid var(--primary-dark);
+}
+
+.post-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.post-username {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.post-time {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.post-menu-btn {
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-lg);
+}
+
+.post-menu-btn:hover {
+  color: var(--text-primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* POST IMAGE */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.post-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--bg-base);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.post-image:hover {
+  transform: scale(1.02);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* POST ACTIONS BAR */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.post-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.post-action-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: transparent;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+.post-action-btn:hover {
+  color: var(--text-primary);
+  background: rgba(99, 102, 241, 0.1);
+  transform: translateY(-2px);
+}
+
+.post-action-btn.like-btn.active {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.post-action-btn.save-btn.active {
+  color: var(--accent);
+  background: rgba(236, 72, 153, 0.1);
+}
+
+.action-label {
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* POST STATS */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.post-stats {
+  display: flex;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.stat-value {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* POST CAPTION */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.post-caption {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  line-height: 1.5;
+}
+
+.caption-username {
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.caption-text {
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* VIEW COMMENTS LINK */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.view-comments-link {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-base);
+  border-bottom: 1px solid var(--border);
+}
+
+.view-comments-link:hover {
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* COMMENTS SECTION */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.post-comments-section {
+  padding: var(--spacing-lg);
+  background: rgba(99, 102, 241, 0.05);
+  border-top: 1px solid var(--border);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.comment-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* RESPONSIVE */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (max-width: 640px) {
+  .post-card {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+
+  .post-header,
+  .post-actions-bar,
+  .post-stats,
+  .post-caption {
+    padding: var(--spacing-md);
+  }
+
+  .post-action-btn {
+    padding: var(--spacing-sm);
+  }
+
+  .action-label {
+    display: none;
+  }
+}

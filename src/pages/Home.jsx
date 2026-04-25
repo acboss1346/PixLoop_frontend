@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import { PostItem } from "../components/PostItem";
 import { useAuth } from "../context/AuthContext";
+import "./Home.css";
 
 export const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -12,6 +13,7 @@ export const Home = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        setLoading(true);
         const response = await api.get("/posts");
         setPosts(response.data);
       } catch (err) {
@@ -38,43 +40,110 @@ export const Home = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-2xl mx-auto py-10 space-y-8">
-        {[1, 2].map(n => (
-          <div key={n} className="bg-neutral-900 rounded-2xl h-[500px] animate-pulse border border-neutral-800"></div>
-        ))}
-      </div>
-    );
-  }
-
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto py-20 text-center">
-        <p className="text-red-500 bg-red-500/10 inline-block px-4 py-2 rounded-xl border border-red-500/20">{error}</p>
+      <div className="home-error">
+        <div className="error-card">
+          <div className="error-icon">⚠️</div>
+          <h3>Something went wrong</h3>
+          <p>{error}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-6">
-      {posts.length === 0 ? (
-        <div className="text-center py-20 bg-neutral-900 rounded-2xl border border-neutral-800 text-neutral-400">
-          <div className="text-5xl mb-4">✨</div>
-          <p className="text-lg font-medium text-white mb-2">Welcome to PixLoop!</p>
-          <p className="text-sm">There are no posts yet. Be the first to share something.</p>
+    <div className="home-container">
+      {/* Left Sidebar */}
+      <aside className="home-sidebar left-sidebar">
+        <div className="sidebar-card">
+          <h3>Your Profile</h3>
+          <div className="profile-mini">
+            <div className="profile-avatar-mini">
+              {user?.username?.charAt(0).toUpperCase()}
+            </div>
+            <div className="profile-info-mini">
+              <p className="profile-name">{user?.username}</p>
+              <p className="profile-handle">@{user?.username}</p>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="space-y-8">
-          {posts.map((post) => (
-            <PostItem 
-              key={post.id} 
-              post={post} 
-              onLikeToggle={() => handleLikeToggle(post.id, post.is_liked)} 
-            />
-          ))}
+
+        <div className="sidebar-card">
+          <h4>Suggested Users</h4>
+          <div className="suggested-list">
+            <div className="suggested-item">
+              <div className="suggested-avatar">AI</div>
+              <div className="suggested-meta">
+                <p>AI Creator</p>
+                <button className="btn-small">Follow</button>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+      </aside>
+
+      {/* Main Feed */}
+      <main className="home-feed">
+        {loading ? (
+          <div className="loading-skeleton">
+            {[1, 2, 3].map(n => (
+              <div key={n} className="skeleton-card">
+                <div className="skeleton-header"></div>
+                <div className="skeleton-image"></div>
+                <div className="skeleton-actions"></div>
+              </div>
+            ))}
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">✨</div>
+            <h2>Welcome to PixLoop!</h2>
+            <p>There are no posts yet. Be the first to share something amazing.</p>
+          </div>
+        ) : (
+          <div className="posts-feed">
+            {posts.map((post) => (
+              <PostItem 
+                key={post.id} 
+                post={post} 
+                onLikeToggle={() => handleLikeToggle(post.id, post.is_liked)} 
+              />
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* Right Sidebar */}
+      <aside className="home-sidebar right-sidebar">
+        <div className="sidebar-card">
+          <h4>Active Groups</h4>
+          <div className="group-list">
+            <div className="group-item">
+              <div className="group-icon">📷</div>
+              <p>Photography</p>
+            </div>
+            <div className="group-item">
+              <div className="group-icon">✈️</div>
+              <p>Travel</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="sidebar-card">
+          <h4>Trending Now</h4>
+          <div className="trending-list">
+            <div className="trending-item">
+              <p className="trending-hash">#Photography</p>
+              <span className="trending-count">1.2K posts</span>
+            </div>
+            <div className="trending-item">
+              <p className="trending-hash">#Landscape</p>
+              <span className="trending-count">856 posts</span>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 };
