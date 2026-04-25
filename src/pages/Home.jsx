@@ -7,7 +7,6 @@ import "./Home.css";
 export const Home = () => {
   const [posts, setPosts] = useState([]);
   const [communities, setCommunities] = useState([]);
-  const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { user } = useAuth();
@@ -16,14 +15,12 @@ export const Home = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [postsRes, communitiesRes, trendingRes] = await Promise.all([
+        const [postsRes, communitiesRes] = await Promise.all([
           api.get("/posts"),
-          api.get("/communities"),
-          api.get("/communities/trending/hashtags")
+          api.get("/communities")
         ]);
         setPosts(postsRes.data);
         setCommunities(communitiesRes.data.data);
-        setTrending(trendingRes.data.data);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load posts");
       } finally {
@@ -139,22 +136,6 @@ export const Home = () => {
                     <p>{community.name}</p>
                     <span className="member-count">{community.memberCount} members</span>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="sidebar-card">
-          <h4>Trending Now</h4>
-          <div className="trending-list">
-            {trending.length === 0 ? (
-              <p className="empty-text">Loading trends...</p>
-            ) : (
-              trending.map((trend) => (
-                <div key={trend.id} className="trending-item">
-                  <p className="trending-hash">{trend.hashtag}</p>
-                  <span className="trending-count">{trend.postCount} posts</span>
                 </div>
               ))
             )}
