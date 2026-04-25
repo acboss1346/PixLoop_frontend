@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Home, PlusSquare, User, Menu, X, Camera } from "lucide-react";
+import { Home, PlusSquare, User, Menu, X, Camera, Bell, Search } from "lucide-react";
+import "./Navbar.css";
 
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -9,96 +10,108 @@ export const Navbar = () => {
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
+  const notificationCount = 0; // TODO: implement notifications
 
   return (
-    <nav className="fixed top-0 w-full z-40 bg-neutral-950/80 backdrop-blur-xl border-b border-neutral-800 shadow-sm">
-      <div className="max-w-5xl mx-auto px-4 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center gap-2 font-bold text-xl text-white tracking-tight hover:opacity-80 transition-opacity">
-            <Camera className="text-blue-500" size={28} />
-            PixLoop
-          </Link>
+    <nav className="navbar">
+      <div className="navbar-container">
+        {/* Logo */}
+        <Link to="/" className="navbar-logo">
+          <div className="logo-icon">
+            <Camera size={24} />
+          </div>
+          <span className="gradient-text">PixLoop</span>
+        </Link>
 
-          {/* Desktop Links */}
-          {user && (
-            <div className="hidden md:flex items-center space-x-6">
-              <Link
-                to="/"
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors font-medium ${
-                  isActive("/") ? "text-white bg-neutral-900" : "text-neutral-400 hover:text-white hover:bg-neutral-900/50"
-                }`}
-              >
-                <Home size={20} />
-                Feed
-              </Link>
-              <Link
-                to="/create"
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors font-medium ${
-                  isActive("/create") ? "text-white bg-neutral-900" : "text-neutral-400 hover:text-white hover:bg-neutral-900/50"
-                }`}
-              >
-                <PlusSquare size={20} />
-                Create
-              </Link>
-              <Link
-                to="/profile"
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors font-medium ${
-                  isActive("/profile") ? "text-white bg-neutral-900" : "text-neutral-400 hover:text-white hover:bg-neutral-900/50"
-                }`}
-              >
-                <User size={20} />
-                Profile
-              </Link>
+        {/* Desktop Navigation */}
+        {user && (
+          <div className="navbar-links-desktop">
+            <Link
+              to="/"
+              className={`nav-link ${isActive("/") ? "active" : ""}`}
+              title="Home Feed"
+            >
+              <Home size={20} />
+              <span>Feed</span>
+            </Link>
+            
+            <div className="nav-search">
+              <Search size={18} />
+              <input type="text" placeholder="Search..." />
             </div>
-          )}
 
-          {/* Mobile Menu Button */}
-          {user && (
-            <div className="md:hidden">
-              <button
-                onClick={() => setMenuOpen((prev) => !prev)}
-                className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-900 rounded-lg transition-colors"
-              >
-                {menuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-          )}
-        </div>
+            <Link
+              to="/create"
+              className="nav-link create-btn"
+              title="Create Post"
+            >
+              <PlusSquare size={20} />
+              <span>Create</span>
+            </Link>
+
+            {/* Notifications */}
+            <button className="nav-icon-btn notifications-btn" title="Notifications">
+              <Bell size={20} />
+              {notificationCount > 0 && (
+                <span className="notification-badge">{notificationCount}</span>
+              )}
+            </button>
+
+            {/* Profile */}
+            <Link to="/profile" className="nav-profile" title="Profile">
+              <div className="profile-avatar">
+                {user?.username?.charAt(0).toUpperCase()}
+              </div>
+            </Link>
+          </div>
+        )}
+
+        {/* Mobile Menu Button */}
+        {user && (
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="navbar-menu-btn"
+            title="Toggle menu"
+          >
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        )}
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && user && (
-        <div className="md:hidden bg-neutral-950 border-b border-neutral-800 px-4 py-4 space-y-2">
+        <div className="navbar-mobile-menu">
           <Link
             to="/"
             onClick={() => setMenuOpen(false)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${
-              isActive("/") ? "text-white bg-neutral-900" : "text-neutral-400 hover:text-white hover:bg-neutral-900"
-            }`}
+            className={`mobile-nav-link ${isActive("/") ? "active" : ""}`}
           >
-            <Home size={22} />
-            Feed
+            <Home size={20} />
+            <span>Feed</span>
           </Link>
+
           <Link
             to="/create"
             onClick={() => setMenuOpen(false)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${
-              isActive("/create") ? "text-white bg-neutral-900" : "text-neutral-400 hover:text-white hover:bg-neutral-900"
-            }`}
+            className={`mobile-nav-link ${isActive("/create") ? "active" : ""}`}
           >
-            <PlusSquare size={22} />
-            Create Post
+            <PlusSquare size={20} />
+            <span>Create Post</span>
           </Link>
+
           <Link
             to="/profile"
             onClick={() => setMenuOpen(false)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${
-              isActive("/profile") ? "text-white bg-neutral-900" : "text-neutral-400 hover:text-white hover:bg-neutral-900"
-            }`}
+            className={`mobile-nav-link ${isActive("/profile") ? "active" : ""}`}
           >
-            <User size={22} />
-            Profile
+            <User size={20} />
+            <span>Profile</span>
           </Link>
+
+          <button className="mobile-nav-link">
+            <Bell size={20} />
+            <span>Notifications</span>
+          </button>
         </div>
       )}
     </nav>
