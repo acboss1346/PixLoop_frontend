@@ -1,0 +1,38 @@
+import { Route, Routes, Navigate } from "react-router-dom";
+import { Home } from "./pages/Home";
+import { Navbar } from "./components/Navbar";
+import { CreatePostPage } from "./pages/CreatePostPage";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { ProfilePage } from "./pages/ProfilePage";
+import { useAuth } from "./context/AuthContext";
+
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+function App() {
+  const { user } = useAuth();
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-gray-100 transition-opacity duration-700 pt-20">
+      {user && <Navbar />}
+      <div className="container mx-auto px-4 py-6">
+        <Routes>
+          <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
+          <Route path="/register" element={!user ? <RegisterPage /> : <Navigate to="/" />} />
+          
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/create" element={<ProtectedRoute><CreatePostPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        </Routes>
+      </div>
+    </div>
+  );
+}
+
+export default App;
