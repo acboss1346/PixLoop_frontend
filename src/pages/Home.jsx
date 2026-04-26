@@ -15,14 +15,24 @@ export const Home = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [postsRes, communitiesRes] = await Promise.all([
+        const [postsRes, communitiesRes] = await Promise.allSettled([
           api.get("/posts"),
           api.get("/communities")
         ]);
-        setPosts(postsRes.data);
-        setCommunities(communitiesRes.data.data);
+        
+        if (postsRes.status === "fulfilled") {
+          setPosts(postsRes.value.data);
+        } else {
+          setError(postsRes.reason?.response?.data?.message || "Failed to load posts");
+        }
+
+        if (communitiesRes.status === "fulfilled") {
+          setCommunities(communitiesRes.value.data.data);
+        } else {
+          console.error("Failed to load communities:", communitiesRes.reason);
+        }
       } catch (err) {
-        setError(err.response?.data?.message || "Failed to load posts");
+        setError("An unexpected error occurred while loading data");
       } finally {
         setLoading(false);
       }
