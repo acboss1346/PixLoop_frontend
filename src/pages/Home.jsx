@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { PostItem } from "../components/PostItem";
 import { useAuth } from "../context/AuthContext";
@@ -10,6 +11,20 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { user } = useAuth();
+
+  const handleJoinGroup = async (communityId) => {
+    try {
+      const res = await api.post(`/communities/${communityId}/join`);
+      if (res.data.success) {
+        setCommunities(communities.map(c => 
+          c.id === communityId ? { ...c, is_member: true, memberCount: parseInt(c.memberCount) + 1 } : c
+        ));
+      }
+    } catch (err) {
+      console.error("Failed to join group", err);
+      alert(err.response?.data?.message || "Failed to join group");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,24 +149,49 @@ export const Home = () => {
       {/* Right Sidebar */}
       <aside className="home-sidebar right-sidebar">
         <div className="sidebar-card">
-          <h4>Active Groups</h4>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h4 style={{ margin: 0 }}>Active Groups</h4>
+            <Link 
+              to="/groups"
+              style={{ background: '#333', color: 'white', textDecoration: 'none', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem' }}
+            >
+              See All
+            </Link>
+          </div>
           <div className="group-list">
             {communities.length === 0 ? (
-              <p className="empty-text">Loading communities...</p>
+              <p className="empty-text">{loading ? "Loading communities..." : "No active groups found."}</p>
             ) : (
               communities.map((community) => (
-                <div key={community.id} className="group-item">
-                  <div className="group-icon">{community.icon}</div>
-                  <div className="group-info">
-                    <p>{community.name}</p>
-                    <span className="member-count">{community.memberCount} members</span>
+                <Link to={`/groups/${community.id}`} key={community.id} className="group-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div className="group-icon">
+                      {community.logo_url ? (
+                        <img src={community.logo_url} alt={community.name} style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                      ) : (
+                        community.icon
+                      )}
+                    </div>
+                    <div className="group-info">
+                      <p style={{ margin: 0, fontWeight: 'bold' }}>{community.name}</p>
+                      <span className="member-count" style={{ fontSize: '0.8rem', color: '#888' }}>{community.memberCount} members</span>
+                    </div>
                   </div>
-                </div>
+                  {!community.is_member && (
+                    <button 
+                      onClick={(e) => { e.preventDefault(); handleJoinGroup(community.id); }}
+                      style={{ background: 'transparent', color: '#a855f7', border: '1px solid #a855f7', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
+                    >
+                      Join
+                    </button>
+                  )}
+                </Link>
               ))
             )}
           </div>
         </div>
       </aside>
+
     </div>
   );
 };

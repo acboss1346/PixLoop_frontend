@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Home, PlusSquare, User, Menu, X, Camera, Bell, Search } from "lucide-react";
+import { Home, PlusSquare, User, Menu, X, Camera, Search, Users, Bell } from "lucide-react";
+import { NotificationsDropdown } from "./NotificationsDropdown";
 import "./Navbar.css";
 
 export const Navbar = () => {
@@ -10,7 +11,6 @@ export const Navbar = () => {
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
-  const notificationCount = 0; // TODO: implement notifications
 
   return (
     <nav className="navbar">
@@ -35,6 +35,15 @@ export const Navbar = () => {
               <span>Feed</span>
             </Link>
             
+            <Link
+              to="/groups"
+              className={`nav-link ${isActive("/groups") ? "active" : ""}`}
+              title="Groups"
+            >
+              <Users size={20} />
+              <span>Groups</span>
+            </Link>
+
             <div className="nav-search">
               <Search size={18} />
               <input type="text" placeholder="Search..." />
@@ -50,12 +59,7 @@ export const Navbar = () => {
             </Link>
 
             {/* Notifications */}
-            <button className="nav-icon-btn notifications-btn" title="Notifications">
-              <Bell size={20} />
-              {notificationCount > 0 && (
-                <span className="notification-badge">{notificationCount}</span>
-              )}
-            </button>
+            <NotificationsDropdown />
 
             {/* Profile */}
             <Link to="/profile" className="nav-profile" title="Profile">
@@ -97,6 +101,15 @@ export const Navbar = () => {
           >
             <PlusSquare size={20} />
             <span>Create Post</span>
+          </Link>
+
+          <Link
+            to="/groups"
+            onClick={() => setMenuOpen(false)}
+            className={`mobile-nav-link ${isActive("/groups") ? "active" : ""}`}
+          >
+            <Users size={20} />
+            <span>Groups</span>
           </Link>
 
           <Link
