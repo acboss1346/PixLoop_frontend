@@ -68,6 +68,28 @@ export const GroupDetailPage = () => {
     }
   };
 
+  const handleLeaveGroup = async () => {
+    if (community.creator_id === currentUserId) {
+      alert("As the creator of the community, you cannot leave it. You can delete it using the trash icon instead.");
+      return;
+    }
+    if (!window.confirm(`Are you sure you want to leave ${community.name}?`)) return;
+
+    try {
+      const res = await api.post(`/communities/${id}/leave`);
+      if (res.data.success) {
+        setCommunity({ 
+          ...community, 
+          is_member: false, 
+          memberCount: Math.max(0, parseInt(community.memberCount) - 1) 
+        });
+      }
+    } catch (err) {
+      console.error("Failed to leave group", err);
+      alert(err.response?.data?.message || "Failed to leave group");
+    }
+  };
+
   const handleDeleteGroup = async () => {
     if (!window.confirm("Are you sure you want to permanently delete this community? All posts inside it will also be deleted.")) return;
     try {
@@ -128,20 +150,6 @@ export const GroupDetailPage = () => {
       }
     } catch (err) {
       console.error("Failed to toggle like:", err);
-    }
-  };
-
-  const handleSaveToggle = async (postId, isSaved) => {
-    try {
-      if (isSaved) {
-        await api.delete(`/posts/${postId}/save`);
-        setPosts(posts.map(p => p.id === postId ? { ...p, is_saved: false, save_count: (p.save_count || 0) - 1 } : p));
-      } else {
-        await api.post(`/posts/${postId}/save`);
-        setPosts(posts.map(p => p.id === postId ? { ...p, is_saved: true, save_count: (p.save_count || 0) + 1 } : p));
-      }
-    } catch (err) {
-      console.error("Failed to toggle save:", err);
     }
   };
 
@@ -277,7 +285,11 @@ export const GroupDetailPage = () => {
                 )}
                 
                 {community.is_member ? (
-                  <button className="px-5 py-2 bg-zinc-900 text-zinc-500 rounded-full font-semibold border border-zinc-800 cursor-default text-xs">
+                  <button 
+                    onClick={handleLeaveGroup}
+                    className="px-5 py-2 bg-zinc-900 text-zinc-400 hover:text-red-400 hover:bg-red-950/20 hover:border-red-900/30 rounded-full font-semibold border border-zinc-800 transition-all text-xs cursor-pointer"
+                    title="Click to leave group"
+                  >
                     Joined
                   </button>
                 ) : (
@@ -392,7 +404,6 @@ export const GroupDetailPage = () => {
                   key={post.id} 
                   post={post} 
                   onLikeToggle={() => handleLikeToggle(post.id, post.is_liked)}
-                  onSaveToggle={() => handleSaveToggle(post.id, post.is_saved)}
                 />
               ))}
             </div>
